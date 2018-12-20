@@ -29,18 +29,25 @@ float getCurrent () {
   //Serial.print(ACOffset);
   //Serial.print("|");
   //Serial.println(measure);
-  /*
-   *  voltageShift is a value that starts from 0 (wich is when there is no current
+  
+  /*  voltageShift is a value that starts from 0 (wich is when there is no current
    * running throgh the sensor) and goes on according to the variation on the sensor's
    * terminals.
    */
+   
   float voltageShift = (measure - ACOffset)*(3.3/4096);
   //I'm not very sure why there is this negative offset, so we take it off.
+  //Maybe due to electromagnetic interference of the "Wireless networking lab".
+  
   float current = voltageShift*(1000/185) + 0.69;
   if (current > 0){
     current = 0;
   }
-  //Not sure why my results were half of those I saw on the internet
+  
+  /*
+   *  We multiply the measured current by two because the IC divides the measured current by 2
+   *  And we take the inverse because the connection is inverted in the schematic
+   */
   current = -2000*current;
   return current;
 }
@@ -48,22 +55,19 @@ float getCurrent () {
 float calculatePower (){
   int sampleVoltage = getOffset(offsetPin)/2;
   float voltageIn = sampleVoltage*(5.05/2047);
-  //Serial.print(voltageIn);
-  //Serial.println(" V");
   float currentIn = getCurrent();
-  //Serial.print(currentIn);
-  //Serial.println(" mA");
   float instantPower = (voltageIn*currentIn)/1000;
   return instantPower;
 }
 
 void setup (){
-  Serial.begin(9600);
+  Serial.begin(38400);
 }
 
 void loop (){
-  float aux = calculatePower();
-  Serial.println(aux);
-  //When integrating we have to multiply the value of the power by 0.2 (for rectangular integration)
-  delay(200);
+  float instantPower = calculatePower();
+  String serialComm = String (instantPower);
+  Serial.println(serialComm);
+  //It will send approximately 10 samples every second
+  delay(100);
 }
