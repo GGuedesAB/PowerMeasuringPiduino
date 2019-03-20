@@ -1,7 +1,7 @@
 
-/*
- *  The circuit in the schematic multiplies every 5v by 0.666, so it goes down to 3.3v
- * and the ESP32 can safely measure analog signals acording to it's ADC specs.
+/*              Gustavo Guedes - gustavoguedesab@gmail.com
+ *  The circuit in the schematic multiplies every 5v by 0.666, then it goes down to 3.3v
+ * so the ESP32 can safely measure analog signals acording to it's ADC specs.
  */
 
 byte offsetPin = 35;
@@ -37,16 +37,17 @@ float getCurrent () {
    
   float voltageShift = (measure - ACOffset)*(3.3/4096);
   //I'm not very sure why there is this negative offset, so we take it off.
-  //Maybe due to electromagnetic interference of the "Wireless networking lab".
-  
+  //Maybe due to electromagnetic interference of the "Wireless Networking lab".
+
+  //We calculate current like this according to the IC's manual.
   float current = voltageShift*(1000/185) + 0.69;
   if (current > 0){
     current = 0;
   }
   
   /*
-   *  We multiply the measured current by two because the IC divides the measured current by 2
-   *  And we take the inverse because the connection is inverted in the schematic
+   *  We multiply the measured current by two because the IC divides the measured current by 2.
+   *  We take the inverse because the connection is inverted in the schematic.
    */
   current = -2000*current;
   return current;
